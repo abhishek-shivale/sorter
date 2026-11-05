@@ -41,14 +41,6 @@ impl FileFormat {
     }
 }
 
-pub fn read_file(path: &Path) -> Result<(), SorterError> {
-    for file in visible_files(path)? {
-        println!("{:?}", file.file_name())
-    }
-
-    Ok(())
-}
-
 pub fn sort_dir(path: &Path, ignore: &[String]) -> Result<(), SorterError> {
     for file in visible_files(path)? {
         if is_ignored(&file.path(), ignore) {

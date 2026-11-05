@@ -13,6 +13,9 @@ pub enum SorterError {
     #[error("invalid config: {0}")]
     ConfigInvalid(#[from] toml::de::Error),
 
+    #[error("invalid config: {0}")]
+    ConfigEdit(#[from] toml_edit::TomlError),
+
     #[error("url in config is not an existing directory: {0}")]
     UrlNotDirectory(String),
 

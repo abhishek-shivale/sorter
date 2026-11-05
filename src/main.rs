@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use clap::Parser;
 
 mod app;
@@ -13,7 +11,7 @@ fn main() -> Result<(), error::SorterError> {
     let application = app::Args::parse();
 
     let result = match application.command {
-        app::Commands::Set { dir } => files::read_file(Path::new(&dir)),
+        app::Commands::Set { dir } => config::Config::set_dir(&paths::config_path(), &dir),
         app::Commands::Start => app::Commands::start(),
         app::Commands::Stop => daemon::stop(),
         app::Commands::Run => daemon::run(),
