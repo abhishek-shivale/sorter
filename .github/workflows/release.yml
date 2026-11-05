@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build
+        run: |
+          mkdir dist
+          for target in aarch64-apple-darwin x86_64-apple-darwin; do
+            rustup target add "$target"
+            cargo build --release --locked --target "$target"
+            asset="sorter-$target.tar.gz"
+            tar -czf "dist/$asset" -C "target/$target/release" sorter
+            (cd dist && shasum -a 256 "$asset" > "$asset.sha256")
+          done
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes dist/*

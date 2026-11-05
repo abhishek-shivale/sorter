@@ -121,6 +121,8 @@ fn render_plist(exe: &Path, log: &Path, home: &Path) -> String {
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>ProcessType</key>
+    <string>Background</string>
     <key>StandardOutPath</key>
     <string>{log}</string>
     <key>StandardErrorPath</key>
@@ -155,5 +157,6 @@ mod tests {
         assert!(plist.contains("<string>/Users/me</string>"));
         assert!(plist.contains("<key>RunAtLoad</key>\n    <true/>"));
         assert!(plist.contains("<key>KeepAlive</key>\n    <true/>"));
+        assert!(plist.contains("<key>ProcessType</key>\n    <string>Background</string>"));
     }
 }

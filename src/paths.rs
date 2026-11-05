@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-pub const LAUNCH_LABEL: &str = "com.sorter";
+pub const LAUNCH_LABEL: &str = "io.github.abhishek-shivale.sorter";
 
 pub fn launch_agent_path() -> PathBuf {
     dirs::home_dir()
