@@ -19,12 +19,18 @@ pub enum SorterError {
     #[error("url in config is not an existing directory: {0}")]
     UrlNotDirectory(String),
 
-    #[error("daemon already running (pid {0})")]
-    AlreadyRunning(u32),
+    #[error("refusing to sort {0}: it is the home directory or a parent of it")]
+    UnsafeDir(String),
+
+    #[error("daemon already running")]
+    AlreadyRunning,
 
     #[error("daemon is not running")]
     NotRunning,
 
-    #[error("could not stop daemon (pid {0})")]
-    StopFailed(u32),
+    #[error("could not start daemon: launchctl bootstrap failed")]
+    StartFailed,
+
+    #[error("could not stop daemon: launchctl bootout failed")]
+    StopFailed,
 }

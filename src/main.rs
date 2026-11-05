@@ -12,7 +12,7 @@ fn main() -> Result<(), error::SorterError> {
 
     let result = match application.command {
         app::Commands::Set { dir } => config::Config::set_dir(&paths::config_path(), &dir),
-        app::Commands::Start => app::Commands::start(),
+        app::Commands::Start => daemon::start(),
         app::Commands::Stop => daemon::stop(),
         app::Commands::Run => daemon::run(),
     };

@@ -1,5 +1,15 @@
 use std::path::PathBuf;
 
+pub const LAUNCH_LABEL: &str = "com.sorter";
+
+pub fn launch_agent_path() -> PathBuf {
+    dirs::home_dir()
+        .expect("Home directory not found")
+        .join("Library")
+        .join("LaunchAgents")
+        .join(format!("{LAUNCH_LABEL}.plist"))
+}
+
 pub fn config_path() -> PathBuf {
     dirs::home_dir()
         .expect("Home directory not found")

@@ -32,6 +32,9 @@ impl Config {
             return Err(not_directory());
         }
         let url = absolute.to_str().ok_or_else(not_directory)?;
+        if is_home_or_parent(&absolute) {
+            return Err(SorterError::UnsafeDir(url.to_string()));
+        }
 
         let text = match fs::read_to_string(path) {
             Ok(text) => text,
@@ -55,8 +58,18 @@ impl Config {
         if !Path::new(&config.url).is_dir() {
             return Err(SorterError::UrlNotDirectory(config.url));
         }
+        if is_home_or_parent(Path::new(&config.url)) {
+            return Err(SorterError::UnsafeDir(config.url));
+        }
         Ok(config)
     }
+}
+
+// Canonical paths, so "/Users/me/", "/Users/me/x/.." and symlinks cannot slip past.
+fn is_home_or_parent(dir: &Path) -> bool {
+    let home = dirs::home_dir().expect("Home directory not found");
+    let home = fs::canonicalize(&home).unwrap_or(home);
+    fs::canonicalize(dir).map_or(true, |dir| home.starts_with(dir))
 }
 
 #[cfg(test)]
@@ -112,6 +125,27 @@ mod tests {
         assert_eq!(fs::read_to_string(&path).unwrap(), "not valid toml =");
 
         fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn rejects_home_and_its_parents() {
+        let home = dirs::home_dir().unwrap();
+        let path = std::env::temp_dir().join(format!("sorter-unsafe-test-{}", std::process::id()));
+        let trailing = format!("{}/", home.display());
+        let dotted = format!("{}/.", home.display());
+        let parent = home.parent().unwrap().to_str().unwrap();
+
+        for dir in ["/", home.to_str().unwrap(), &trailing, &dotted, parent] {
+            assert!(matches!(
+                Config::set_dir(&path, dir),
+                Err(SorterError::UnsafeDir(_))
+            ));
+            assert!(matches!(
+                Config::parse(&format!("url = \"{dir}\"")),
+                Err(SorterError::UnsafeDir(_))
+            ));
+        }
+        assert!(!path.exists());
     }
 
     #[test]
