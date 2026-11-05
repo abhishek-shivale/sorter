@@ -50,13 +50,54 @@ pub fn run() -> Result<(), SorterError> {
     }
 }
 
+pub fn stop() -> Result<(), SorterError> {
+    let pid_path = paths::app_dir().join("sorter.pid");
+
+    let Some(pid) = running_pid(&pid_path) else {
+        let _ = fs::remove_file(&pid_path);
+        return Err(SorterError::NotRunning);
+    };
+
+    if !Command::new("kill").arg(pid.to_string()).status()?.success() {
+        return Err(SorterError::StopFailed(pid));
+    }
+
+    for _ in 0..50 {
+        if running_pid(&pid_path).is_none() {
+            fs::remove_file(&pid_path)?;
+            println!("sorter stopped (pid {pid})");
+            return Ok(());
+        }
+        std::thread::sleep(Duration::from_millis(100));
+    }
+
+    Err(SorterError::StopFailed(pid))
+}
+
+// Checks the command, not only the pid: the OS may have reused the pid, and stop kills it.
 fn running_pid(pid_path: &Path) -> Option<u32> {
     let pid: u32 = fs::read_to_string(pid_path).ok()?.trim().parse().ok()?;
-    let alive = Command::new("kill")
-        .args(["-0", &pid.to_string()])
-        .stderr(Stdio::null())
-        .status()
-        .ok()?
-        .success();
-    alive.then_some(pid)
+    let output = Command::new("ps")
+        .args(["-p", &pid.to_string(), "-o", "command="])
+        .output()
+        .ok()?;
+    String::from_utf8_lossy(&output.stdout)
+        .trim()
+        .ends_with("sorter run")
+        .then_some(pid)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn running_pid_rejects_other_processes() {
+        let pid_path = std::env::temp_dir().join(format!("sorter-pid-test-{}", std::process::id()));
+        fs::write(&pid_path, std::process::id().to_string()).unwrap();
+
+        assert_eq!(running_pid(&pid_path), None);
+
+        fs::remove_file(&pid_path).unwrap();
+    }
 }

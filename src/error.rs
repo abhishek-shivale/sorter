@@ -18,4 +18,10 @@ pub enum SorterError {
 
     #[error("daemon already running (pid {0})")]
     AlreadyRunning(u32),
+
+    #[error("daemon is not running")]
+    NotRunning,
+
+    #[error("could not stop daemon (pid {0})")]
+    StopFailed(u32),
 }

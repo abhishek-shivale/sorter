@@ -15,7 +15,7 @@ fn main() -> Result<(), error::SorterError> {
     let result = match application.command {
         app::Commands::Set { dir } => files::read_file(Path::new(&dir)),
         app::Commands::Start => app::Commands::start(),
-        app::Commands::Stop => todo!("stop"),
+        app::Commands::Stop => daemon::stop(),
         app::Commands::Run => daemon::run(),
     };
 
