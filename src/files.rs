@@ -2,6 +2,8 @@ use std::path::Path;
 
 use crate::error::SorterError;
 
+pub enum FileFormat {}
+
 pub fn read_file(path: &Path) -> Result<(), SorterError> {
     let dir: Vec<_> = std::fs::read_dir(path)?
         .filter_map(|f| match f {

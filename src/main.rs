@@ -3,6 +3,8 @@ use std::path::Path;
 use clap::Parser;
 
 mod app;
+mod config;
+mod daemon;
 mod error;
 mod files;
 mod paths;
@@ -12,8 +14,9 @@ fn main() -> Result<(), error::SorterError> {
 
     let result = match application.command {
         app::Commands::Set { dir } => files::read_file(Path::new(&dir)),
-        app::Commands::Start => todo!("start"),
+        app::Commands::Start => app::Commands::start(),
         app::Commands::Stop => todo!("stop"),
+        app::Commands::Run => daemon::run(),
     };
 
     if let Err(problem) = result {

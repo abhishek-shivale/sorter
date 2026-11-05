@@ -1,5 +1,8 @@
 use clap::{Parser, Subcommand};
 
+use crate::daemon;
+use crate::error::SorterError;
+
 #[derive(Debug, Parser)]
 #[command(name = "Sorter", version, about = "Rust based sorter for sorting files in sub directory", long_about = None)]
 pub struct Args {
@@ -15,10 +18,12 @@ pub enum Commands {
         #[arg(long)]
         dir: String,
     },
+    #[command(hide = true)]
+    Run,
 }
 
 impl Commands {
-    fn start() {
-        
+    pub fn start() -> Result<(), SorterError> {
+        daemon::start()
     }
 }
