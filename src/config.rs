@@ -8,6 +8,8 @@ use crate::error::SorterError;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub url: String,
+    #[serde(default)]
+    pub ignore: Vec<String>,
 }
 
 impl Config {
@@ -35,6 +37,13 @@ mod tests {
     #[test]
     fn accepts_existing_directory() {
         assert_eq!(Config::parse("url = \"src\"").unwrap().url, "src");
+    }
+
+    #[test]
+    fn reads_optional_ignore_list() {
+        assert!(Config::parse("url = \"src\"").unwrap().ignore.is_empty());
+        let config = Config::parse("url = \"src\"\nignore = [\"pdf\", \"zip\"]").unwrap();
+        assert_eq!(config.ignore, ["pdf", "zip"]);
     }
 
     #[test]

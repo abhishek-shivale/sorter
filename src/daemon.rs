@@ -43,7 +43,7 @@ pub fn run() -> Result<(), SorterError> {
     let config = Config::load(&paths::config_path())?;
 
     loop {
-        if let Err(problem) = files::read_file(Path::new(&config.url)) {
+        if let Err(problem) = files::sort_dir(Path::new(&config.url), &config.ignore) {
             eprintln!("{problem}");
         }
         std::thread::sleep(POLL_INTERVAL);
