@@ -1,12 +1,24 @@
-use std::path::PathBuf;
-
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
-#[command(version, about, long_about = None)]
+#[command(name = "Sorter", version, about = "Rust based sorter for sorting files in sub directory", long_about = None)]
 pub struct Args {
-    pub dir: PathBuf,
+    #[command(subcommand)]
+    pub command: Commands,
+}
 
-    #[arg(long)]
-    pub dry_run: bool,
+#[derive(Subcommand, Debug)]
+pub enum Commands {
+    Start,
+    Stop,
+    Set {
+        #[arg(long)]
+        dir: String,
+    },
+}
+
+impl Commands {
+    fn start() {
+        
+    }
 }
